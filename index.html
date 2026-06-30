@@ -3,110 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Kyrgyzstan — умный чат</title>
-  <meta name="description" content="Умный ИИ-чат: спросите что угодно, получите ответ и код на Swift, SwiftUI, UIKit, HTML, Python и других языках." />
+  <title>AI Kyrgyzstan — Искусственный интеллект Кыргызстана</title>
+  <meta name="description" content="Национальный ИИ-ассистент Кыргызстана: история, прогнозы, источники и умный чат на кыргызском и русском языках." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <!-- подсветка кода -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" />
-  <link rel="stylesheet" href="css/chat.css" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-  <!-- ШАПКА -->
-  <header class="app-header">
-    <div class="brand">
-      <span class="brand-mark">AI</span>
-      <span class="brand-name">Kyrgyzstan</span>
-    </div>
-    <div class="header-actions">
-      <button id="newChat" class="hbtn" title="Новый чат">＋ Новый чат</button>
-      <button id="openSettings" class="hbtn" title="Настройки">⚙️</button>
-      <button id="logoutBtn" class="hbtn" title="Выйти" hidden>Выйти</button>
+  <!-- ============ ШАПКА ============ -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#top" class="logo">
+        <span class="logo-mark">AI</span>
+        <span class="logo-text">Kyrgyzstan</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#chat">Чат с ИИ</a>
+        <a href="#history">История</a>
+        <a href="#forecasts">Прогнозы</a>
+        <a href="book.html">Книга</a>
+        <a href="#sources">Источники</a>
+        <a href="#about">О проекте</a>
+      </nav>
     </div>
   </header>
 
-  <!-- ЭКРАН ВХОДА ПО ПОЧТЕ -->
-  <div class="auth-gate" id="authGate" hidden>
-    <div class="auth-card">
-      <div class="auth-logo">🤖🇰🇬</div>
-      <h1>AI Kyrgyzstan</h1>
-      <p class="auth-sub">Войдите по почте, чтобы начать общение с ИИ</p>
-
-      <div id="stepEmail">
-        <input type="email" id="authEmail" placeholder="Ваша почта (email)" autocomplete="email" />
-        <button id="sendCode" class="btn-primary auth-btn">Получить код на почту</button>
+  <!-- ============ ГЛАВНЫЙ ЭКРАН ============ -->
+  <section class="hero" id="top">
+    <div class="container hero-inner">
+      <div class="hero-flag">🇰🇬</div>
+      <h1>Национальный ИИ <span class="grad">Кыргызстана</span></h1>
+      <p class="hero-sub">
+        Умный ассистент, который знает историю, прогнозы и факты о Кыргызстане.
+        Говорит на кыргызском и русском. Создано для нашей страны.
+      </p>
+      <div class="hero-actions">
+        <a href="#chat" class="btn btn-primary">Спросить ИИ</a>
+        <a href="#about" class="btn btn-ghost">Как это работает</a>
       </div>
-
-      <div id="stepCode" hidden>
-        <p class="auth-note">Мы отправили код на <b id="emailShown"></b>. Проверьте почту (и папку «Спам»).</p>
-        <input type="text" id="authCode" inputmode="numeric" placeholder="Код из письма" />
-        <button id="verifyCode" class="btn-primary auth-btn">Войти</button>
-        <button id="backEmail" class="btn-ghost auth-btn">← Изменить почту</button>
-      </div>
-
-      <p class="auth-msg" id="authMsg"></p>
-    </div>
-  </div>
-
-  <!-- ОКНО ЧАТА -->
-  <main class="chat" id="chat">
-    <div class="welcome" id="welcome">
-      <div class="welcome-logo">🤖🇰🇬</div>
-      <h1>Чем могу помочь?</h1>
-      <p>Спросите что угодно или попросите написать код — Swift, SwiftUI, UIKit, HTML, Python и другое.</p>
-      <div class="chips">
-        <button>Напиши экран входа на SwiftUI</button>
-        <button>HTML-страница с формой обратной связи</button>
-        <button>Скрипт на Python для парсинга сайта</button>
-        <button>Кнопка на UIKit с анимацией</button>
-        <button>Объясни, что такое async/await</button>
+      <div class="hero-stats">
+        <div><strong>7 млн</strong><span>население</span></div>
+        <div><strong>1991</strong><span>независимость</span></div>
+        <div><strong>7 439 м</strong><span>пик Победы</span></div>
       </div>
     </div>
-    <div class="messages" id="messages"></div>
-  </main>
+  </section>
 
-  <!-- ПОЛЕ ВВОДА -->
-  <footer class="composer">
-    <form id="form" class="composer-inner">
-      <textarea id="input" rows="1" placeholder="Напишите сообщение… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
-      <button type="submit" id="send" class="send-btn" title="Отправить">➤</button>
-    </form>
-    <div class="composer-hint" id="hint" style="display:none"></div>
+  <!-- ============ ЧАТ С ИИ ============ -->
+  <section class="section" id="chat">
+    <div class="container">
+      <h2 class="section-title">🤖 Чат с ИИ-ассистентом</h2>
+      <p class="section-lead">
+        Задайте вопрос о Кыргызстане — история, география, культура, экономика, прогнозы.
+        Работает бесплатно, без ключа и регистрации.
+      </p>
+
+      <div class="chat-card">
+        <div class="chat-window" id="chatWindow">
+          <div class="msg bot">
+            <div class="avatar">AI</div>
+            <div class="bubble">
+              Салам! 👋 Я национальный ИИ-ассистент Кыргызстана.
+              Спросите меня про историю, Иссык-Куль, эпос «Манас», экономику или прогнозы.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-suggestions" id="suggestions">
+          <button>Расскажи про эпос Манас</button>
+          <button>Что такое Иссык-Куль?</button>
+          <button>Прогноз экономики Кыргызстана</button>
+          <button>Кратко историю страны</button>
+        </div>
+
+        <form class="chat-input" id="chatForm">
+          <input type="text" id="chatText" placeholder="Напишите вопрос…" autocomplete="off" />
+          <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ИСТОРИЯ ============ -->
+  <section class="section section-alt" id="history">
+    <div class="container">
+      <h2 class="section-title">📜 История Кыргызстана</h2>
+      <p class="section-lead">От древних кыргызов до современного независимого государства.</p>
+      <div class="timeline" id="timeline"><!-- заполняется из data/knowledge.js --></div>
+    </div>
+  </section>
+
+  <!-- ============ БАННЕР КНИГИ ============ -->
+  <section class="section" id="book-banner">
+    <div class="container">
+      <a href="book.html" class="book-promo">
+        <div class="book-promo-icon">📖</div>
+        <div class="book-promo-text">
+          <h2>Электронная книга «История Кыргызстана»</h2>
+          <p>Полная история — от древних кыргызов и каганатов до наших дней. 15 глав, культура, символы и хронология. Читать онлайн или скачать.</p>
+          <span class="book-promo-btn">Открыть книгу →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ ПРОГНОЗЫ ============ -->
+  <section class="section" id="forecasts">
+    <div class="container">
+      <h2 class="section-title">🔮 Прогнозы развития</h2>
+      <p class="section-lead">Перспективы Кыргызстана по ключевым направлениям (на основе данных Всемирного банка, ADB и госпрограмм).</p>
+      <div class="cards" id="forecastCards"><!-- заполняется из data/knowledge.js --></div>
+    </div>
+  </section>
+
+  <!-- ============ ИСТОЧНИКИ ============ -->
+  <section class="section section-alt" id="sources">
+    <div class="container">
+      <h2 class="section-title">📚 Источники</h2>
+      <p class="section-lead">Вся информация основана на официальных и проверенных источниках.</p>
+      <div class="sources-grid" id="sourcesGrid"><!-- заполняется из data/knowledge.js --></div>
+    </div>
+  </section>
+
+  <!-- ============ О ПРОЕКТЕ ============ -->
+  <section class="section" id="about">
+    <div class="container about-grid">
+      <div>
+        <h2 class="section-title left">💡 О проекте</h2>
+        <p>
+          <strong>AI Kyrgyzstan</strong> — это прототип национального ИИ-ассистента.
+          Его задача — давать точные знания о Кыргызстане и поддерживать кыргызский язык,
+          которого пока нет в больших мировых моделях.
+        </p>
+        <h3>Как это работает</h3>
+        <ul class="check-list">
+          <li>Бесплатно, без ключа и регистрации — ответы из встроенной базы знаний.</li>
+          <li>Темы: история, география, культура, экономика и прогнозы.</li>
+          <li>Все данные — из официальных источников (см. раздел «Источники»).</li>
+        </ul>
+        <h3>Дальнейшее развитие</h3>
+        <ul class="check-list">
+          <li>Дообучение открытой модели (Llama / Qwen) на кыргызских текстах.</li>
+          <li>Сбор датасета на кыргызском языке.</li>
+          <li>Голосовой ввод и перевод кыргызский ↔ русский ↔ английский.</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h3>🚀 Технологии</h3>
+        <p>HTML, CSS, JavaScript — работает в любом браузере без установки.</p>
+        <p>Бесплатно и без ключей — вся информация встроена в сайт.</p>
+        <p>Открытый код — можно развивать и улучшать.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ПОДВАЛ ============ -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>🇰🇬 <strong>AI Kyrgyzstan</strong> — национальный ИИ-проект</p>
+      <p class="muted">Прототип. Информация носит справочный характер. © 2026</p>
+    </div>
   </footer>
 
-  <!-- МОДАЛКА НАСТРОЕК -->
-  <div class="modal-overlay" id="settingsModal" hidden>
-    <div class="modal">
-      <h2>⚙️ Настройки</h2>
-      <p>Выберите ИИ и вставьте API-ключ. Ключ хранится <strong>только в вашем браузере</strong>.</p>
-
-      <label>Режим ИИ</label>
-      <select id="providerSelect">
-        <option value="free">🟢 Бесплатно, без ключа</option>
-        <option value="gemini">🟢 Бесплатно с ключом (умнее)</option>
-        <option value="claude">🔴 Премиум (платный, самый умный)</option>
-      </select>
-
-      <label>API-ключ</label>
-      <input type="password" id="apiKey" placeholder="вставьте ключ сюда" />
-      <p class="get-key" id="getKeyLink"></p>
-
-      <div class="modal-actions">
-        <button id="saveSettings" class="btn-primary">Сохранить</button>
-        <button id="closeSettings" class="btn-ghost">Закрыть</button>
-      </div>
-      <p class="modal-status" id="modalStatus"></p>
-    </div>
-  </div>
-
-  <!-- Markdown + подсветка кода -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-  <!-- Supabase (вход по почте) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/chat.js"></script>
+  <script src="data/knowledge.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
