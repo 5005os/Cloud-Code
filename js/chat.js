@@ -10,8 +10,8 @@
 
   // куда идти за ключом
   const KEY_LINKS = {
-    gemini: 'Получить <b>бесплатный</b> ключ (без карты): <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a>',
-    claude: 'Получить ключ (платно): <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>'
+    gemini: 'Получить <b>бесплатный</b> ключ (без карты): <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">нажмите здесь</a>',
+    claude: 'Получить премиум-ключ (платно): <a href="https://console.anthropic.com" target="_blank" rel="noopener">нажмите здесь</a>'
   };
 
   // ---------- Системный промпт ----------
@@ -160,9 +160,8 @@
   }
 
   function offlineReply() {
-    return "Чтобы я мог отвечать на любые вопросы и **писать код**, подключите ключ в настройках ⚙️ вверху справа.\n\n" +
-      "💚 Бесплатно (без карты) — **Google Gemini**: получите ключ на " +
-      "[aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey), выберите провайдер Gemini и вставьте ключ.";
+    return "Чтобы я мог отвечать на любые вопросы и **писать код**, включите бесплатный режим в настройках ⚙️ вверху справа " +
+      "и вставьте бесплатный ключ.";
   }
 
   // ---------- Отправка ----------
