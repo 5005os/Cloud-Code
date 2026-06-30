@@ -152,22 +152,33 @@
 
   // ---- Бесплатный ИИ без ключа (отвечает на любые вопросы) ----
   // ---- Точный поиск статьи Уголовного кодекса КР ----
+  function formatLaw(num) {
+    return "📘 Статья " + num + " Уголовного кодекса Кыргызской Республики:\n\n" +
+      window.LAWS_UK_KR[num] + "\n\n(Источник: УК КР, 2021 г.)";
+  }
   function lookupLaw(question) {
     const laws = window.LAWS_UK_KR;
     if (!laws) return null;
-    // вопрос про закон/кодекс/статью?
     const q = question.toLowerCase();
-    const isLaw = /(стать|ук кр|уголовн|кодекс|наказан)/.test(q);
-    if (!isLaw) return null;
-    const m = question.match(/\b(\d{1,3})(-\d)?\b/); // номер статьи
-    if (!m) return null;
-    const num = m[1];
-    if (laws[num]) {
-      return "📘 Статья " + num + " Уголовного кодекса Кыргызской Республики:\n\n" + laws[num] +
-        "\n\n(Источник: УК КР, 2021 г.)";
+    const isLaw = /(стать|ук кр|уголовн|кодекс|наказан|преступл)/.test(q);
+
+    // 1) по номеру статьи ("статья 122", "122 статья")
+    const m = question.match(/\b(\d{1,3})(-\d)?\b/);
+    if (m && isLaw) {
+      const num = m[1];
+      if (laws[num]) return formatLaw(num);
+      return "В базе AkylAi пока нет статьи " + num + " УК КР. Пришлите её текст — добавлю точно.";
     }
-    return "В нашей базе пока нет точного текста статьи " + num + " УК КР. " +
-      "Я добавляю статьи по мере наполнения. Пришлите её текст — и я добавлю точно.";
+
+    // 2) по названию преступления ("убийство какая статья")
+    const idx = window.LAWS_INDEX || {};
+    for (const kw in idx) {
+      if (q.includes(kw)) {
+        const num = idx[kw];
+        if (laws[num]) return "Это статья " + num + " УК КР.\n\n" + formatLaw(num);
+      }
+    }
+    return null;
   }
 
   const SYSTEM_PROMPT =
@@ -212,20 +223,9 @@
     addMessage(question, "user");
     const typing = addTyping();
     try {
-      let answer;
-      // 1) если спрашивают про статью УК КР — отвечаем точно из нашей базы
-      const law = lookupLaw(question);
-      if (law) {
-        answer = law;
-      } else {
-        try {
-          // 2) основной режим — бесплатный ИИ (отвечает на всё)
-          answer = await askFreeAI(question);
-        } catch (e) {
-          // 3) если интернет/сервис недоступен — встроенная база знаний
-          answer = offlineAnswer(question);
-        }
-      }
+      // AkylAi отвечает ТОЛЬКО из базы знаний проекта (без внешнего ИИ).
+      await new Promise(function (r) { setTimeout(r, 250); });
+      let answer = lookupLaw(question) || offlineAnswer(question);
       typing.remove();
       addMessage(answer, "bot");
     } catch (e) {
