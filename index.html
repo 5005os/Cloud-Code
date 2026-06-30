@@ -48,24 +48,25 @@
       <textarea id="input" rows="1" placeholder="Напишите сообщение… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
       <button type="submit" id="send" class="send-btn" title="Отправить">➤</button>
     </form>
-    <div class="composer-hint" id="hint">⚠️ Подключите ключ Claude API в ⚙️, чтобы ИИ отвечал на любые вопросы и писал код.</div>
+    <div class="composer-hint" id="hint">⚠️ Подключите БЕСПЛАТНЫЙ ключ Google Gemini в ⚙️, чтобы ИИ отвечал на вопросы и писал код.</div>
   </footer>
 
   <!-- МОДАЛКА НАСТРОЕК -->
   <div class="modal-overlay" id="settingsModal" hidden>
     <div class="modal">
       <h2>⚙️ Настройки</h2>
-      <p>Чтобы ИИ отвечал на любые вопросы и писал код, нужен ключ Claude API. Получить можно на
-        <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.
-        Ключ хранится <strong>только в вашем браузере</strong>.</p>
-      <label>API-ключ Claude</label>
-      <input type="password" id="apiKey" placeholder="sk-ant-..." />
-      <label>Модель</label>
-      <select id="modelSelect">
-        <option value="claude-opus-4-8">Claude Opus 4.8 (самый умный)</option>
-        <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (быстрее)</option>
-        <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (быстрый)</option>
+      <p>Выберите ИИ и вставьте API-ключ. Ключ хранится <strong>только в вашем браузере</strong>.</p>
+
+      <label>Провайдер ИИ</label>
+      <select id="providerSelect">
+        <option value="gemini">🟢 Google Gemini — БЕСПЛАТНО</option>
+        <option value="claude">🔴 Claude (платный, очень умный)</option>
       </select>
+
+      <label>API-ключ</label>
+      <input type="password" id="apiKey" placeholder="вставьте ключ сюда" />
+      <p class="get-key" id="getKeyLink"></p>
+
       <div class="modal-actions">
         <button id="saveSettings" class="btn-primary">Сохранить</button>
         <button id="closeSettings" class="btn-ghost">Закрыть</button>

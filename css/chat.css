@@ -112,6 +112,8 @@ body {
 .btn-primary:hover { background: var(--red-dark); }
 .btn-ghost { background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 11px 22px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--ink); }
 .modal-status { margin-top: 12px; font-weight: 600; font-size: 13.5px; color: var(--red); }
+.get-key { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
+.get-key a { color: var(--red); font-weight: 700; }
 
 @media (max-width: 600px) {
   .chips button { font-size: 13.5px; }
