@@ -115,6 +115,19 @@ body {
 .get-key { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
 .get-key a { color: var(--red); font-weight: 700; }
 
+/* ---------- Экран входа ---------- */
+.auth-gate { position: fixed; inset: 0; background: radial-gradient(900px 500px at 50% 0%, #fff5f5, #fff 65%); display: grid; place-items: center; padding: 20px; z-index: 200; }
+.auth-gate[hidden] { display: none; }
+.auth-card { width: 100%; max-width: 380px; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 34px 28px; box-shadow: 0 20px 60px rgba(0,0,0,.1); }
+.auth-logo { font-size: 46px; }
+.auth-card h1 { font-size: 26px; margin: 6px 0 4px; }
+.auth-sub { color: var(--ink-soft); font-size: 15px; margin-bottom: 22px; }
+.auth-card input { width: 100%; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 16px; margin-bottom: 12px; text-align: center; }
+.auth-card input:focus { outline: none; border-color: var(--red); }
+.auth-btn { width: 100%; margin-bottom: 10px; }
+.auth-note { color: var(--ink-soft); font-size: 14px; margin-bottom: 14px; }
+.auth-msg { font-size: 13.5px; font-weight: 600; min-height: 18px; margin-top: 6px; }
+
 @media (max-width: 600px) {
   .chips button { font-size: 13.5px; }
   .welcome { padding-top: 5vh; }

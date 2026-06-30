@@ -22,8 +22,32 @@
     <div class="header-actions">
       <button id="newChat" class="hbtn" title="Новый чат">＋ Новый чат</button>
       <button id="openSettings" class="hbtn" title="Настройки">⚙️</button>
+      <button id="logoutBtn" class="hbtn" title="Выйти" hidden>Выйти</button>
     </div>
   </header>
+
+  <!-- ЭКРАН ВХОДА ПО ПОЧТЕ -->
+  <div class="auth-gate" id="authGate" hidden>
+    <div class="auth-card">
+      <div class="auth-logo">🤖🇰🇬</div>
+      <h1>AI Kyrgyzstan</h1>
+      <p class="auth-sub">Войдите по почте, чтобы начать общение с ИИ</p>
+
+      <div id="stepEmail">
+        <input type="email" id="authEmail" placeholder="Ваша почта (email)" autocomplete="email" />
+        <button id="sendCode" class="btn-primary auth-btn">Получить код на почту</button>
+      </div>
+
+      <div id="stepCode" hidden>
+        <p class="auth-note">Мы отправили код на <b id="emailShown"></b>. Проверьте почту (и папку «Спам»).</p>
+        <input type="text" id="authCode" inputmode="numeric" placeholder="Код из письма" />
+        <button id="verifyCode" class="btn-primary auth-btn">Войти</button>
+        <button id="backEmail" class="btn-ghost auth-btn">← Изменить почту</button>
+      </div>
+
+      <p class="auth-msg" id="authMsg"></p>
+    </div>
+  </div>
 
   <!-- ОКНО ЧАТА -->
   <main class="chat" id="chat">
@@ -78,6 +102,10 @@
   <!-- Markdown + подсветка кода -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <!-- Supabase (вход по почте) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/chat.js"></script>
 </body>
 </html>
