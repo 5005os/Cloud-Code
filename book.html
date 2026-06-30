@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Книга «История Кыргызстана» — AI Kyrgyzstan</title>
+  <meta name="description" content="Электронная книга об истории Кыргызстана: от древности до наших дней. Читать онлайн и скачать." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .book-hero { background: radial-gradient(1000px 400px at 50% -10%, #fff5f5, #fff 60%); padding: 60px 0 30px; text-align: center; }
+    .book-hero .flag { font-size: 48px; }
+    .book-hero h1 { font-size: clamp(28px, 5vw, 44px); margin: 10px 0; }
+    .book-hero p { color: var(--ink-soft); font-size: 17px; }
+    .book-actions { margin-top: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .book-layout { display: grid; grid-template-columns: 260px 1fr; gap: 36px; align-items: start; padding: 40px 0 80px; }
+    .book-toc { position: sticky; top: 84px; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; max-height: calc(100vh - 110px); overflow-y: auto; }
+    .book-toc h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .5px; color: var(--red); margin-bottom: 12px; }
+    .book-toc a { display: block; padding: 5px 0; color: var(--ink-soft); font-size: 14.5px; border-left: 2px solid transparent; padding-left: 10px; }
+    .book-toc a:hover { color: var(--red); border-left-color: var(--red); }
+    /* типографика книги */
+    .book-content { max-width: 760px; font-size: 17px; line-height: 1.75; }
+    .book-content h1 { font-size: 32px; margin: 10px 0 6px; }
+    .book-content h2 { font-size: 25px; margin: 40px 0 12px; padding-top: 14px; border-top: 2px solid var(--line); }
+    .book-content h3 { font-size: 18px; color: var(--ink-soft); margin: 6px 0 18px; font-weight: 600; }
+    .book-content p { margin: 12px 0; }
+    .book-content ul, .book-content ol { margin: 12px 0; padding-left: 26px; }
+    .book-content li { margin: 6px 0; }
+    .book-content strong { color: var(--ink); }
+    .book-content blockquote { border-left: 4px solid var(--yellow); background: var(--bg-alt); padding: 12px 18px; margin: 16px 0; border-radius: 0 10px 10px 0; color: var(--ink-soft); }
+    .book-content table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15px; }
+    .book-content th, .book-content td { border: 1px solid var(--line); padding: 9px 12px; text-align: left; }
+    .book-content th { background: var(--bg-alt); }
+    .book-content a { color: var(--red); text-decoration: underline; }
+    .book-content hr { border: none; border-top: 1px solid var(--line); margin: 30px 0; }
+    .loading { color: var(--ink-soft); padding: 40px 0; text-align: center; }
+    @media (max-width: 860px) { .book-layout { grid-template-columns: 1fr; } .book-toc { position: static; max-height: none; } }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html#top" class="logo">
+        <span class="logo-mark">AI</span>
+        <span class="logo-text">Kyrgyzstan</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html#chat">Чат с ИИ</a>
+        <a href="index.html#history">История</a>
+        <a href="index.html#forecasts">Прогнозы</a>
+        <a href="book.html">Книга</a>
+        <a href="index.html#sources">Источники</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="book-hero">
+    <div class="container">
+      <div class="flag">📖🇰🇬</div>
+      <h1>Электронная книга «История Кыргызстана»</h1>
+      <p>От древних кыргызов и каганатов до современного независимого государства.</p>
+      <div class="book-actions">
+        <a href="book/istoriya-kyrgyzstana.md" download class="btn btn-primary">⬇️ Скачать книгу (.md)</a>
+        <a href="index.html" class="btn btn-ghost">На главную</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container book-layout">
+    <aside class="book-toc">
+      <h3>Содержание</h3>
+      <div id="toc"></div>
+    </aside>
+    <main class="book-content" id="book">
+      <div class="loading">Загружаю книгу…</div>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>🇰🇬 <strong>AI Kyrgyzstan</strong> — национальный ИИ-проект</p>
+      <p class="muted">Книга носит образовательный характер и постоянно дополняется. © 2026</p>
+    </div>
+  </footer>
+
+  <!-- Рендер Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    (async function () {
+      const bookEl = document.getElementById('book');
+      const tocEl = document.getElementById('toc');
+      try {
+        const res = await fetch('book/istoriya-kyrgyzstana.md');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        let md = await res.text();
+        // убираем дублирующий встроенный блок «Содержание» (TOC строим сами)
+        bookEl.innerHTML = marked.parse(md);
+
+        // строим оглавление из заголовков h2
+        const heads = bookEl.querySelectorAll('h2');
+        heads.forEach((h, i) => {
+          const id = 'ch-' + i;
+          h.id = id;
+          const a = document.createElement('a');
+          a.href = '#' + id;
+          a.textContent = h.textContent;
+          tocEl.appendChild(a);
+        });
+      } catch (e) {
+        bookEl.innerHTML = '<p class="loading">Не удалось загрузить книгу (' + e.message +
+          ').<br>Открой страницу через веб-сервер (GitHub Pages), а не как локальный файл.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>
