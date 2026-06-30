@@ -21,6 +21,7 @@
 | `traffic_rules.jsonl` | ПДД, дорожные знаки, авто-лексика (рус) | JSONL |
 | `traffic_rules_ky.jsonl` | ПДД на кыргызском языке | JSONL |
 | `pdd_exam.jsonl` | Экзаменационные билеты ПДД с правильными ответами | JSONL |
+| `pdd_top50.jsonl` | Топ-50 вопросов-ответов по ПДД КР | JSONL |
 | `grammar.md` | Грамматика кыргызского (падежи, гармония, глаголы) | Markdown |
 | `phrasebook` (в `data/knowledge.js`) | Разговорник для сайта | JS |
 
