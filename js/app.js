@@ -150,23 +150,40 @@
     return msg;
   }
 
+  // ---- Бесплатный ИИ без ключа (отвечает на любые вопросы) ----
+  const SYSTEM_PROMPT =
+    "Ты — AkylAi, дружелюбный и умный ассистент. Отвечай понятно и по делу на языке " +
+    "пользователя (русский или кыргызский). Помогай с любыми вопросами.";
+  const convo = []; // история диалога для контекста
+
+  async function askFreeAI(question) {
+    const messages = [{ role: "system", content: SYSTEM_PROMPT }]
+      .concat(convo, [{ role: "user", content: question }]);
+    const res = await fetch("https://text.pollinations.ai/openai", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "openai", messages: messages })
+    });
+    if (!res.ok) throw new Error("сервис занят (" + res.status + ")");
+    const data = await res.json();
+    const m = data && data.choices && data.choices[0] && data.choices[0].message;
+    const answer = (m && m.content || "").trim();
+    if (!answer) throw new Error("пустой ответ");
+    convo.push({ role: "user", content: question });
+    convo.push({ role: "assistant", content: answer });
+    return answer;
+  }
+
   async function handleAsk(question) {
     addMessage(question, "user");
     const typing = addTyping();
-
     try {
-      let answer = null;
-      const hasKey = !!localStorage.getItem("aikg_api_key");
-      if (hasKey) {
-        try {
-          answer = await onlineAnswer(question);
-        } catch (e) {
-          answer = "⚠️ Не удалось связаться с Claude API (" + e.message + ").\n\n" +
-            "Отвечаю из базы знаний:\n\n" + offlineAnswer(question);
-        }
-      } else {
-        // небольшая задержка для естественности
-        await new Promise(r => setTimeout(r, 350));
+      let answer;
+      try {
+        // основной режим — бесплатный ИИ (отвечает на всё)
+        answer = await askFreeAI(question);
+      } catch (e) {
+        // если интернет/сервис недоступен — отвечаем из встроенной базы знаний
         answer = offlineAnswer(question);
       }
       typing.remove();
