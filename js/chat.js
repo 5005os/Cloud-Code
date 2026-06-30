@@ -5,7 +5,9 @@
   // ---------- Хранилище настроек ----------
   const LS_KEY = "aikg_api_key";          // ключ выбранного провайдера
   const LS_PROVIDER = "aikg_provider";    // 'gemini' | 'claude'
-  const getKey = () => localStorage.getItem(LS_KEY) || "";
+  const CFG = window.AIKG_CONFIG || {};
+  // ключ берём: 1) из настроек пользователя, иначе 2) общий ключ из config.js
+  const getKey = () => localStorage.getItem(LS_KEY) || CFG.AI_KEY || "";
   const getProvider = () => localStorage.getItem(LS_PROVIDER) || "gemini";
 
   // куда идти за ключом
