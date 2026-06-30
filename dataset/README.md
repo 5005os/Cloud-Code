@@ -17,6 +17,7 @@
 | `texts.json` | Короткие тексты (о КР, Манас, семья) | JSON |
 | `articles.json` | Статьи (традиции, кухня, культура, природа) | JSON |
 | `constitution.json` | Факты о Конституции КР (источник: shailoo.gov.kg) | JSON |
+| `law_qa.jsonl` | Вопросы-ответы по праву и госустройству | JSONL |
 | `grammar.md` | Грамматика кыргызского (падежи, гармония, глаголы) | Markdown |
 | `phrasebook` (в `data/knowledge.js`) | Разговорник для сайта | JS |
 
