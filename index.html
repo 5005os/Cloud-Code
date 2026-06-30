@@ -48,7 +48,7 @@
       <textarea id="input" rows="1" placeholder="Напишите сообщение… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
       <button type="submit" id="send" class="send-btn" title="Отправить">➤</button>
     </form>
-    <div class="composer-hint" id="hint">⚠️ Подключите БЕСПЛАТНЫЙ ключ Google Gemini в ⚙️, чтобы ИИ отвечал на вопросы и писал код.</div>
+    <div class="composer-hint" id="hint">⚠️ Включите бесплатный режим в ⚙️, чтобы ИИ отвечал на вопросы и писал код.</div>
   </footer>
 
   <!-- МОДАЛКА НАСТРОЕК -->
@@ -57,10 +57,10 @@
       <h2>⚙️ Настройки</h2>
       <p>Выберите ИИ и вставьте API-ключ. Ключ хранится <strong>только в вашем браузере</strong>.</p>
 
-      <label>Провайдер ИИ</label>
+      <label>Режим ИИ</label>
       <select id="providerSelect">
-        <option value="gemini">🟢 Google Gemini — БЕСПЛАТНО</option>
-        <option value="claude">🔴 Claude (платный, очень умный)</option>
+        <option value="gemini">🟢 Бесплатный режим</option>
+        <option value="claude">🔴 Премиум режим (платный)</option>
       </select>
 
       <label>API-ключ</label>
