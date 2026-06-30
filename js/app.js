@@ -159,17 +159,34 @@
     return "📘 Статья " + num + " Уголовного кодекса Кыргызской Республики:\n\n" +
       window.LAWS_UK_KR[num] + "\n\n(Источник: УК КР, 2021 г.)";
   }
+  // ---- Запрос подробностей: «подробнее», «все пункты», «статья 122 подробнее» ----
+  function detailRequest(question) {
+    const q = question.toLowerCase().trim();
+    const wantsDetail = /(подробн|все пункт|всё пункт|полност|детальн|по частям|весь текст|дальше|больше|ещё|еще)/.test(q);
+    if (!wantsDetail) return null;
+    const m = question.match(/\b(\d{1,3})(-\d)?\b/);
+    const num = m ? m[1] : lastArticle;
+    if (!num) return "О чём подробнее? 🙂 Сначала спросите про статью или тему, потом напишите «подробнее».";
+    lastArticle = num;
+    if (window.LAWS_FULL && window.LAWS_FULL[num])
+      return "📖 Статья " + num + " — подробно:\n\n" + window.LAWS_FULL[num] + "\n\n(Источник: УК КР, 2021 г.)";
+    if (window.LAWS_UK_KR && window.LAWS_UK_KR[num])
+      return formatLaw(num) + "\n\nПолного текста по частям пока нет в базе — могу добавить, если пришлёте.";
+    return "По статье " + num + " пока нет данных в базе. Пришлите текст — добавлю. 🙂";
+  }
+
   function lookupLaw(question) {
     const laws = window.LAWS_UK_KR;
     if (!laws) return null;
     const q = question.toLowerCase();
-    const isLaw = /(стать|ук кр|уголовн|кодекс|наказан|преступл)/.test(q);
+    const isLaw = /(стать|ук|уголовн|кодекс|наказан|преступл)/.test(q);
+    const bare = question.trim().match(/^(\d{1,3})(-\d)?$/); // просто «122»
 
-    // 1) по номеру статьи ("статья 122", "122 статья")
+    // 1) по номеру статьи ("122", "статья 122", "122 статья")
     const m = question.match(/\b(\d{1,3})(-\d)?\b/);
-    if (m && isLaw) {
-      const num = m[1];
-      if (laws[num]) { lastArticle = num; return formatLaw(num) + "\n\nХотите подробнее? Напишите «подробнее»."; }
+    if (bare || (m && isLaw)) {
+      const num = bare ? bare[1] : m[1];
+      if (laws[num]) { lastArticle = num; return formatLaw(num) + "\n\n💡 Напишите «подробнее» — покажу полный текст."; }
       return "В базе AkylAi пока нет статьи " + num + " УК КР. Пришлите её текст — добавлю точно. 🙂";
     }
 
@@ -178,24 +195,8 @@
     for (const kw in idx) {
       if (q.includes(kw)) {
         const num = idx[kw];
-        if (laws[num]) { lastArticle = num; return "Это статья " + num + " УК КР.\n\n" + formatLaw(num) + "\n\nХотите подробнее? Напишите «подробнее»."; }
+        if (laws[num]) { lastArticle = num; return "Это статья " + num + " УК КР.\n\n" + formatLaw(num) + "\n\n💡 Напишите «подробнее» — покажу полный текст."; }
       }
-    }
-    return null;
-  }
-
-  // ---- «Подробнее» про последнюю статью ----
-  function followUp(question) {
-    const q = question.toLowerCase().trim();
-    if (/^(подробн|ещё|еще|детал|полност|дальше|больше)/.test(q)) {
-      if (lastArticle && window.LAWS_FULL && window.LAWS_FULL[lastArticle]) {
-        return "📖 Подробно:\n\n" + window.LAWS_FULL[lastArticle] + "\n\n(Источник: УК КР, 2021 г.)";
-      }
-      if (lastArticle) {
-        return "По статье " + lastArticle + " у меня есть краткое описание (выше). " +
-          "Полного текста по частям пока нет в базе — могу добавить, если пришлёте.";
-      }
-      return "О чём подробнее? 🙂 Спросите сначала про статью или тему, а потом напишите «подробнее».";
     }
     return null;
   }
@@ -262,7 +263,7 @@
     try {
       // AkylAi отвечает ТОЛЬКО из базы знаний проекта (без внешнего ИИ).
       await new Promise(function (r) { setTimeout(r, 250); });
-      let answer = followUp(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
+      let answer = detailRequest(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
       typing.remove();
       addMessage(answer, "bot");
     } catch (e) {
