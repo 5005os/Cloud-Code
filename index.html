@@ -72,7 +72,7 @@
       <textarea id="input" rows="1" placeholder="Напишите сообщение… (Enter — отправить, Shift+Enter — новая строка)"></textarea>
       <button type="submit" id="send" class="send-btn" title="Отправить">➤</button>
     </form>
-    <div class="composer-hint" id="hint">⚠️ Включите бесплатный режим в ⚙️, чтобы ИИ отвечал на вопросы и писал код.</div>
+    <div class="composer-hint" id="hint" style="display:none"></div>
   </footer>
 
   <!-- МОДАЛКА НАСТРОЕК -->
@@ -83,8 +83,9 @@
 
       <label>Режим ИИ</label>
       <select id="providerSelect">
-        <option value="gemini">🟢 Бесплатный режим</option>
-        <option value="claude">🔴 Премиум режим (платный)</option>
+        <option value="free">🟢 Бесплатно, без ключа</option>
+        <option value="gemini">🟢 Бесплатно с ключом (умнее)</option>
+        <option value="claude">🔴 Премиум (платный, самый умный)</option>
       </select>
 
       <label>API-ключ</label>

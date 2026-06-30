@@ -8,10 +8,12 @@
   const CFG = window.AIKG_CONFIG || {};
   // ключ берём: 1) из настроек пользователя, иначе 2) общий ключ из config.js
   const getKey = () => localStorage.getItem(LS_KEY) || CFG.AI_KEY || "";
-  const getProvider = () => localStorage.getItem(LS_PROVIDER) || "gemini";
+  const getProvider = () => localStorage.getItem(LS_PROVIDER) || "free";
+  const needsKey = () => getProvider() !== "free";
 
   // куда идти за ключом
   const KEY_LINKS = {
+    free: '✅ Ключ не нужен — этот режим работает бесплатно и сразу.',
     gemini: 'Получить <b>бесплатный</b> ключ (без карты): <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">нажмите здесь</a>',
     claude: 'Получить премиум-ключ (платно): <a href="https://console.anthropic.com" target="_blank" rel="noopener">нажмите здесь</a>'
   };
@@ -50,7 +52,12 @@
   if (window.marked) marked.setOptions({ breaks: true, gfm: true });
 
   // ---------- UI утилиты ----------
-  function refreshHint() { hint.style.display = getKey() ? "none" : "block"; }
+  function refreshHint() {
+    // подсказка про ключ нужна только если выбран режим с ключом и ключа нет
+    const show = needsKey() && !getKey();
+    hint.textContent = show ? "⚠️ Для этого режима нужен ключ — добавьте его в ⚙️, или выберите «Бесплатно, без ключа»." : "";
+    hint.style.display = show ? "block" : "none";
+  }
   function hideWelcome() { if (welcome) welcome.style.display = "none"; }
   function scrollDown() { chat.scrollTop = chat.scrollHeight; }
   function autoGrow() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 200) + "px"; }
@@ -105,6 +112,21 @@
     return msg;
   }
 
+  // ---------- Провайдер: бесплатный ИИ без ключа ----------
+  async function askFree() {
+    const messages = [{ role: "system", content: SYSTEM_PROMPT }]
+      .concat(history.map((m) => ({ role: m.role, content: m.content })));
+    const res = await fetch("https://text.pollinations.ai/openai", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "openai", messages: messages })
+    });
+    if (!res.ok) throw new Error("Сервис занят (" + res.status + "). Попробуйте ещё раз.");
+    const data = await res.json();
+    const msg = data && data.choices && data.choices[0] && data.choices[0].message;
+    return (msg && msg.content || "").trim() || "(пустой ответ)";
+  }
+
   // ---------- Провайдер: Google Gemini (бесплатно) ----------
   async function askGemini(key) {
     const model = "gemini-2.0-flash";
@@ -155,8 +177,11 @@
 
   async function askAI(userText) {
     history.push({ role: "user", content: userText });
-    const key = getKey();
-    const answer = getProvider() === "claude" ? await askClaude(key) : await askGemini(key);
+    const provider = getProvider();
+    let answer;
+    if (provider === "free") answer = await askFree();
+    else if (provider === "claude") answer = await askClaude(getKey());
+    else answer = await askGemini(getKey());
     history.push({ role: "assistant", content: answer });
     return answer;
   }
@@ -176,7 +201,7 @@
     const typing = addTyping();
     try {
       let answer;
-      if (getKey()) answer = await askAI(text);
+      if (!needsKey() || getKey()) answer = await askAI(text);
       else { await new Promise((r) => setTimeout(r, 250)); answer = offlineReply(); }
       typing.remove(); addMessage("bot", answer);
     } catch (e) {
