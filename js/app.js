@@ -151,6 +151,9 @@
   }
 
   // ---- Бесплатный ИИ без ключа (отвечает на любые вопросы) ----
+  // ---- Память диалога: последняя обсуждаемая статья ----
+  let lastArticle = null;
+
   // ---- Точный поиск статьи Уголовного кодекса КР ----
   function formatLaw(num) {
     return "📘 Статья " + num + " Уголовного кодекса Кыргызской Республики:\n\n" +
@@ -166,8 +169,8 @@
     const m = question.match(/\b(\d{1,3})(-\d)?\b/);
     if (m && isLaw) {
       const num = m[1];
-      if (laws[num]) return formatLaw(num);
-      return "В базе AkylAi пока нет статьи " + num + " УК КР. Пришлите её текст — добавлю точно.";
+      if (laws[num]) { lastArticle = num; return formatLaw(num) + "\n\nХотите подробнее? Напишите «подробнее»."; }
+      return "В базе AkylAi пока нет статьи " + num + " УК КР. Пришлите её текст — добавлю точно. 🙂";
     }
 
     // 2) по названию преступления ("убийство какая статья")
@@ -175,9 +178,43 @@
     for (const kw in idx) {
       if (q.includes(kw)) {
         const num = idx[kw];
-        if (laws[num]) return "Это статья " + num + " УК КР.\n\n" + formatLaw(num);
+        if (laws[num]) { lastArticle = num; return "Это статья " + num + " УК КР.\n\n" + formatLaw(num) + "\n\nХотите подробнее? Напишите «подробнее»."; }
       }
     }
+    return null;
+  }
+
+  // ---- «Подробнее» про последнюю статью ----
+  function followUp(question) {
+    const q = question.toLowerCase().trim();
+    if (/^(подробн|ещё|еще|детал|полност|дальше|больше)/.test(q)) {
+      if (lastArticle && window.LAWS_FULL && window.LAWS_FULL[lastArticle]) {
+        return "📖 Подробно:\n\n" + window.LAWS_FULL[lastArticle] + "\n\n(Источник: УК КР, 2021 г.)";
+      }
+      if (lastArticle) {
+        return "По статье " + lastArticle + " у меня есть краткое описание (выше). " +
+          "Полного текста по частям пока нет в базе — могу добавить, если пришлёте.";
+      }
+      return "О чём подробнее? 🙂 Спросите сначала про статью или тему, а потом напишите «подробнее».";
+    }
+    return null;
+  }
+
+  // ---- Живое общение (приветствие, благодарность, кто ты) ----
+  function smallTalk(question) {
+    const q = question.toLowerCase().trim();
+    if (/(^|\s)(салам|ассалам|привет|здравств|саламатсыз)/.test(q))
+      return "Салам! 👋 Мен AkylAi — кыргыз ассистентмин. Спросите про статью УК, кыргызский язык, ПДД, историю или Конституцию КР. Чем помочь?";
+    if (/(рахмат|спасибо|чоң рахмат)/.test(q))
+      return "Арзыбайт! 😊 (Не за что!) Обращайтесь ещё — рад помочь.";
+    if (/(как дела|кандайсы|кандайсыз)/.test(q))
+      return "Жакшы, рахмат! 😊 Я готов помочь. О чём расскажу?";
+    if (/(кто ты|ты кто|сен ким|что ты такое|твоё имя|твое имя)/.test(q))
+      return "Я AkylAi 🇰🇬 — кыргызский ИИ-ассистент. Отвечаю по своей базе: статьи Уголовного кодекса КР, кыргызский язык, ПДД, Конституция, история и культура Кыргызстана.";
+    if (/(что умеешь|что можешь|чем поможешь|помоги|что знаешь)/.test(q))
+      return "Я умею:\n• ⚖️ Статьи УК КР (например: «статья 122», «убийство какая статья»)\n• 🇰🇬 Кыргызский язык (переводы, слова, грамматика)\n• 🚦 ПДД Кыргызстана\n• 🏛️ Конституция и госустройство\n• 📜 История и культура КР\nСпросите что-нибудь!";
+    if (/(пока|до свидан|кош бол)/.test(q))
+      return "Кош болуңуз! 👋 Хорошего дня!";
     return null;
   }
 
@@ -225,7 +262,7 @@
     try {
       // AkylAi отвечает ТОЛЬКО из базы знаний проекта (без внешнего ИИ).
       await new Promise(function (r) { setTimeout(r, 250); });
-      let answer = lookupLaw(question) || offlineAnswer(question);
+      let answer = followUp(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
       typing.remove();
       addMessage(answer, "bot");
     } catch (e) {
