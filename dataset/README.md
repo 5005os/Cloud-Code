@@ -17,6 +17,7 @@
 | `texts.json` | Короткие тексты (о КР, Манас, семья) | JSON |
 | `articles.json` | Статьи (традиции, кухня, культура, природа) | JSON |
 | `constitution.json` | Факты о Конституции КР (источник: shailoo.gov.kg) | JSON |
+| `criminal_code_kr.jsonl` | Ключевые статьи Уголовного кодекса КР (2021) | JSONL |
 | `law_qa.jsonl` | Вопросы-ответы по праву и госустройству | JSONL |
 | `traffic_rules.jsonl` | ПДД, дорожные знаки, авто-лексика (рус) | JSONL |
 | `traffic_rules_ky.jsonl` | ПДД на кыргызском языке | JSONL |
