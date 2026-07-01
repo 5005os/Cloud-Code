@@ -82,8 +82,8 @@
       return "Салам! 👋 Рад помочь. Спросите меня про историю, географию, прогнозы или культуру Кыргызстана.";
     }
 
-    return "Я пока знаю ограниченный набор тем (история, Иссык-Куль, Манас, экономика, прогнозы Кыргызстана). " +
-      "Попробуйте переформулировать вопрос или спросите про одну из этих тем.";
+    // Ничего не нашли в базе — вернём null, чтобы подключился Qwen (запасной мозг)
+    return null;
   }
 
   // ---------------------------------------------------------------
@@ -301,6 +301,7 @@
     "- Если пишет на русском — отвечай на русском, но при просьбе переводи и учи кыргызскому.\n" +
     "- Помогай переводить русский ⇄ кыргызский и объясняй кыргызские слова и грамматику.\n" +
     "- Будь точным: не выдумывай кыргызские слова, если не уверен — скажи об этом.\n" +
+    "- НИКОГДА не выдумывай номера статей законов. Если не знаешь точную статью КР — скажи: «уточните, я отвечу по базе».\n" +
     "Надёжный кыргызский разговорник (используй его):\n" +
     "Салам / Саламатсызбы — Здравствуйте; Кандайсың? / Кандайсызбы? — Как дела?; " +
     "Жакшы — хорошо; Рахмат — спасибо; Чоң рахмат — большое спасибо; " +
@@ -309,15 +310,18 @@
     "Сабаа — нет (разг.); Сурап коёюнчу — позвольте спросить.\n" +
     "Сандар (числа): бир(1), эки(2), үч(3), төрт(4), беш(5), алты(6), жети(7), сегиз(8), тогуз(9), он(10).\n" +
     "Отвечай дружелюбно и понятно.";
+  const FREE_AI_MODEL = "qwen-coder"; // бесплатный Qwen (запасной мозг для свободных вопросов)
   const convo = []; // история диалога для контекста
 
   async function askFreeAI(question) {
+    // последние 6 реплик как контекст (чтобы Qwen помнил разговор, но не перегружать)
+    const recent = convo.slice(-6);
     const messages = [{ role: "system", content: SYSTEM_PROMPT }]
-      .concat(convo, [{ role: "user", content: question }]);
+      .concat(recent, [{ role: "user", content: question }]);
     const res = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model: "openai", messages: messages })
+      body: JSON.stringify({ model: FREE_AI_MODEL, messages: messages })
     });
     if (!res.ok) throw new Error("сервис занят (" + res.status + ")");
     const data = await res.json();
@@ -352,9 +356,20 @@
 
     const typing = addTyping();
     try {
-      // AkylAi отвечает ТОЛЬКО из базы знаний проекта (без внешнего ИИ).
-      await new Promise(function (r) { setTimeout(r, 250); });
+      // 1) Сначала — точная база проекта (законы КР, факты, память). Это приоритет.
+      await new Promise(function (r) { setTimeout(r, 200); });
       let answer = nameMemory(question) || detailRequest(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
+
+      // 2) Если в базе ответа нет — подключаем Qwen (запасной мозг для свободных вопросов).
+      if (!answer) {
+        try {
+          answer = await askFreeAI(question);
+        } catch (e) {
+          answer = "Я отвечаю по своей базе (законы КР, кыргызский язык, ПДД, Конституция, история, культура, туризм). " +
+            "Сейчас не смог подключить Qwen для свободного ответа (" + e.message + "). Попробуйте ещё раз или спросите по этим темам.";
+        }
+      }
+
       typing.remove();
       addMessage(answer, "bot");
       persistMessage(answer, "bot");
