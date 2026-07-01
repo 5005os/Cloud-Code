@@ -310,18 +310,24 @@
     "Сабаа — нет (разг.); Сурап коёюнчу — позвольте спросить.\n" +
     "Сандар (числа): бир(1), эки(2), үч(3), төрт(4), беш(5), алты(6), жети(7), сегиз(8), тогуз(9), он(10).\n" +
     "Отвечай дружелюбно и понятно.";
-  const FREE_AI_MODEL = "qwen-coder"; // бесплатный Qwen (запасной мозг для свободных вопросов)
+  const DEFAULT_AI_MODEL = "qwen-coder"; // модель по умолчанию (запасной мозг)
   const convo = []; // история диалога для контекста
 
+  // Какая модель выбрана в списке на странице
+  function selectedModel() {
+    const el = document.getElementById("modelSelect");
+    return (el && el.value) || DEFAULT_AI_MODEL;
+  }
+
   async function askFreeAI(question) {
-    // последние 6 реплик как контекст (чтобы Qwen помнил разговор, но не перегружать)
+    // последние 6 реплик как контекст (чтобы модель помнила разговор, но не перегружать)
     const recent = convo.slice(-6);
     const messages = [{ role: "system", content: SYSTEM_PROMPT }]
       .concat(recent, [{ role: "user", content: question }]);
     const res = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model: FREE_AI_MODEL, messages: messages })
+      body: JSON.stringify({ model: selectedModel(), messages: messages })
     });
     if (!res.ok) throw new Error("сервис занят (" + res.status + ")");
     const data = await res.json();
@@ -366,7 +372,8 @@
           answer = await askFreeAI(question);
         } catch (e) {
           answer = "Я отвечаю по своей базе (законы КР, кыргызский язык, ПДД, Конституция, история, культура, туризм). " +
-            "Сейчас не смог подключить Qwen для свободного ответа (" + e.message + "). Попробуйте ещё раз или спросите по этим темам.";
+            "Сейчас не смог подключить модель «" + selectedModel() + "» для свободного ответа (" + e.message + "). " +
+            "Попробуйте ещё раз, выберите другую модель или спросите по этим темам.";
         }
       }
 
@@ -424,6 +431,20 @@
   // ---------------------------------------------------------------
   // ИНИЦИАЛИЗАЦИЯ
   // ---------------------------------------------------------------
+  // Запоминаем выбранную модель между визитами
+  (function initModelSelect() {
+    const el = document.getElementById("modelSelect");
+    if (!el) return;
+    const saved = localStorage.getItem("akylai_model");
+    if (saved) {
+      const ok = Array.prototype.some.call(el.options, function (o) { return o.value === saved; });
+      if (ok) el.value = saved;
+    }
+    el.addEventListener("change", function () {
+      try { localStorage.setItem("akylai_model", el.value); } catch (e) {}
+    });
+  })();
+
   renderHistory();
   renderForecasts();
   renderSources();
