@@ -280,10 +280,10 @@
     }
     if (/(рахмат|спасибо|чоң рахмат)/.test(q))
       return "Арзыбайт! 😊 (Не за что!) Обращайтесь ещё — рад помочь.";
-    if (/(как дела|кандайсы|кандайсыз)/.test(q))
+    if (/(как дела|как ты|как настроение|кандайсы|кандайсыз)/.test(q))
       return "Жакшы, рахмат! 😊 Я готов помочь. О чём расскажу?";
-    if (/(кто ты|ты кто|сен ким|что ты такое|твоё имя|твое имя)/.test(q))
-      return "Я AkylAi 🇰🇬 — кыргызский ИИ-ассистент. Отвечаю по своей базе: статьи Уголовного кодекса КР, кыргызский язык, ПДД, Конституция, история и культура Кыргызстана.";
+    if (/(кто ты|ты кто|сен ким|что ты такое|тво[её] имя|как теб[яе] зов|как т[яе] зов|как т[яе] зав|как звать|как теб[яе] звать|атың ким|сенин ат)/.test(q))
+      return "Мени AkylAi деп аташат. 🇰🇬 (Меня зовут AkylAi.) Я кыргызский ИИ-ассистент. Отвечаю по своей базе: статьи УК КР, кыргызский язык, ПДД, Конституция, история, культура и туризм Кыргызстана.";
     if (/(что умеешь|что можешь|чем поможешь|помоги|что знаешь)/.test(q))
       return "Я умею:\n• ⚖️ Статьи УК КР (например: «статья 122», «убийство какая статья»)\n• 🇰🇬 Кыргызский язык (переводы, слова, грамматика)\n• 🚦 ПДД Кыргызстана\n• 🏛️ Конституция и госустройство\n• 📜 История и культура КР\nСпросите что-нибудь!";
     if (/(пока|до свидан|кош бол)/.test(q))
@@ -310,7 +310,7 @@
     "Сабаа — нет (разг.); Сурап коёюнчу — позвольте спросить.\n" +
     "Сандар (числа): бир(1), эки(2), үч(3), төрт(4), беш(5), алты(6), жети(7), сегиз(8), тогуз(9), он(10).\n" +
     "Отвечай дружелюбно и понятно.";
-  const DEFAULT_AI_MODEL = "qwen-coder"; // модель по умолчанию (запасной мозг)
+  const DEFAULT_AI_MODEL = "openai"; // модель по умолчанию (запасной мозг)
   const convo = []; // история диалога для контекста
 
   // Какая модель выбрана в списке на странице
@@ -319,24 +319,43 @@
     return (el && el.value) || DEFAULT_AI_MODEL;
   }
 
-  async function askFreeAI(question) {
-    // последние 6 реплик как контекст (чтобы модель помнила разговор, но не перегружать)
-    const recent = convo.slice(-6);
-    const messages = [{ role: "system", content: SYSTEM_PROMPT }]
-      .concat(recent, [{ role: "user", content: question }]);
+  // Один запрос к конкретной модели
+  async function callModel(model, messages) {
     const res = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model: selectedModel(), messages: messages })
+      body: JSON.stringify({ model: model, messages: messages, referrer: "akylai" })
     });
     if (!res.ok) throw new Error("сервис занят (" + res.status + ")");
     const data = await res.json();
     const m = data && data.choices && data.choices[0] && data.choices[0].message;
     const answer = (m && m.content || "").trim();
     if (!answer) throw new Error("пустой ответ");
-    convo.push({ role: "user", content: question });
-    convo.push({ role: "assistant", content: answer });
     return answer;
+  }
+
+  async function askFreeAI(question) {
+    // последние 6 реплик как контекст (чтобы модель помнила разговор, но не перегружать)
+    const recent = convo.slice(-6);
+    const messages = [{ role: "system", content: SYSTEM_PROMPT }]
+      .concat(recent, [{ role: "user", content: question }]);
+
+    // Пробуем выбранную модель, затем надёжные запасные — чтобы ответ был всегда
+    const tryModels = [selectedModel(), "openai", "mistral"]
+      .filter(function (v, i, a) { return a.indexOf(v) === i; });
+
+    let lastErr = "нет ответа";
+    for (const model of tryModels) {
+      try {
+        const answer = await callModel(model, messages);
+        convo.push({ role: "user", content: question });
+        convo.push({ role: "assistant", content: answer });
+        return answer;
+      } catch (e) {
+        lastErr = e.message;
+      }
+    }
+    throw new Error(lastErr);
   }
 
   // Команда очистки памяти: «забудь», «очисти историю», «начни заново»
