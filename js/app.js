@@ -162,7 +162,7 @@
   // ---- Запрос подробностей: «подробнее», «все пункты», «статья 122 подробнее» ----
   function detailRequest(question) {
     const q = question.toLowerCase().trim();
-    const wantsDetail = /(подробн|все пункт|всё пункт|полност|детальн|по частям|весь текст|дальше|больше|ещё|еще)/.test(q);
+    const wantsDetail = /(подробн|все пункт|всё пункт|полн|детал|по частям|весь текст|дальше|больше|ещё|еще)/.test(q);
     if (!wantsDetail) return null;
     const m = question.match(/\b(\d{1,3})(-\d)?\b/);
     const num = m ? m[1] : lastArticle;
