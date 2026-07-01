@@ -50,7 +50,7 @@
 
     // Поиск по парам «вопрос-ответ»
     for (const item of (K.qa || [])) {
-      if (item.keys.some(key => q.includes(key))) return item.answer;
+      if (item.keys.some(key => q.includes(key))) { lastTopic = item; return item.answer; }
     }
 
     // История по ключевым словам
@@ -150,9 +150,73 @@
     return msg;
   }
 
-  // ---- Бесплатный ИИ без ключа (отвечает на любые вопросы) ----
-  // ---- Память диалога: последняя обсуждаемая статья ----
-  let lastArticle = null;
+  // ---- Память диалога ----
+  let lastArticle = null;   // последняя обсуждаемая статья УК
+  let lastTopic = null;     // последняя обсуждаемая тема (item из базы знаний)
+
+  // ---- Долгая память: сохраняем историю чата в браузере (переживает перезагрузку) ----
+  const HISTORY_KEY = "akylai_history";
+  const HISTORY_LIMIT = 200; // максимум сообщений в памяти
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }
+    catch (e) { return []; }
+  }
+  function persistMessage(text, who) {
+    const h = loadHistory();
+    h.push({ text: text, who: who });
+    while (h.length > HISTORY_LIMIT) h.shift();
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch (e) {}
+  }
+  function clearHistory() {
+    try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
+    lastArticle = null;
+    lastTopic = null;
+  }
+
+  // ---- Память имени пользователя (обращаемся по имени) ----
+  const NAME_KEY = "akylai_username";
+  function getUserName() {
+    try { return localStorage.getItem(NAME_KEY) || null; } catch (e) { return null; }
+  }
+  function setUserName(n) {
+    try { localStorage.setItem(NAME_KEY, n); } catch (e) {}
+  }
+  function forgetUserName() {
+    try { localStorage.removeItem(NAME_KEY); } catch (e) {}
+  }
+
+  // Распознаём знакомство и вопрос «как меня зовут»
+  function nameMemory(question) {
+    const q = question.trim();
+    // Сначала — вопрос об имени («как меня зовут», «менин атым ким»)
+    if (/(как меня зовут|мо[её] имя\??$|помн.*(им[яею])|менин атым ким)/i.test(q)) {
+      const n = getUserName();
+      return n
+        ? "Конечно помню — вас зовут " + n + ". 🙂"
+        : "Пока не знаю вашего имени. Напишите «меня зовут …» — и я запомню.";
+    }
+    // Затем — знакомство: «меня зовут Айбек», «моё имя Айбек», «менин атым Айбек»
+    const m = q.match(/(?:меня зовут|мо[её] имя|менин атым|мени)\s+([A-Za-zА-Яа-яЁёҢңӨөҮүІі]{2,20})/i);
+    if (m) {
+      const raw = m[1];
+      // «ким», «кто» — это вопросительные слова, а не имя
+      if (/^(ким|кто|эмне)$/i.test(raw)) {
+        const n = getUserName();
+        return n ? "Вас зовут " + n + ". 🙂" : "Пока не знаю вашего имени. Напишите «меня зовут …» — запомню.";
+      }
+      const name = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+      setUserName(name);
+      return "Абдан жакшы, " + name + "! 😊 (Приятно познакомиться!) Буду обращаться по имени. Чем помочь?";
+    }
+    return null;
+  }
+  // Восстановить прошлый диалог при загрузке страницы
+  function restoreHistory() {
+    const h = loadHistory();
+    if (!h.length || !chatWindow) return;
+    h.forEach(function (m) { addMessage(m.text, m.who); });
+  }
 
   // ---- Точный поиск статьи Уголовного кодекса КР ----
   function formatLaw(num) {
@@ -166,7 +230,12 @@
     if (!wantsDetail) return null;
     const m = question.match(/\b(\d{1,3})(-\d)?\b/);
     const num = m ? m[1] : lastArticle;
-    if (!num) return "О чём подробнее? 🙂 Сначала спросите про статью или тему, потом напишите «подробнее».";
+    if (!num) {
+      // Нет статьи — но помним последнюю тему разговора
+      if (lastTopic) return "Напомню по теме:\n\n" + lastTopic.answer +
+        "\n\nЕсли нужно про конкретную статью УК — напишите её номер (например «122»).";
+      return "О чём подробнее? 🙂 Сначала спросите про статью или тему, потом напишите «подробнее».";
+    }
     lastArticle = num;
     if (window.LAWS_FULL && window.LAWS_FULL[num])
       return "📖 Статья " + num + " — подробно:\n\n" + window.LAWS_FULL[num] + "\n\n(Источник: УК КР, 2021 г.)";
@@ -204,8 +273,11 @@
   // ---- Живое общение (приветствие, благодарность, кто ты) ----
   function smallTalk(question) {
     const q = question.toLowerCase().trim();
-    if (/(^|\s)(салам|ассалам|привет|здравств|саламатсыз)/.test(q))
-      return "Салам! 👋 Мен AkylAi — кыргыз ассистентмин. Спросите про статью УК, кыргызский язык, ПДД, историю или Конституцию КР. Чем помочь?";
+    if (/(^|\s)(салам|ассалам|привет|здравств|саламатсыз)/.test(q)) {
+      const nm = getUserName();
+      const hi = nm ? "Салам, " + nm + "! 👋 " : "Салам! 👋 ";
+      return hi + "Мен AkylAi — кыргыз ассистентмин. Спросите про статью УК, кыргызский язык, ПДД, историю или Конституцию КР. Чем помочь?";
+    }
     if (/(рахмат|спасибо|чоң рахмат)/.test(q))
       return "Арзыбайт! 😊 (Не за что!) Обращайтесь ещё — рад помочь.";
     if (/(как дела|кандайсы|кандайсыз)/.test(q))
@@ -257,15 +329,35 @@
     return answer;
   }
 
+  // Команда очистки памяти: «забудь», «очисти историю», «начни заново»
+  function isClearCommand(question) {
+    return /(забудь( всё| все)?|очисти( историю| чат)?|начни заново|стереть историю|clear)/.test(question.toLowerCase().trim());
+  }
+
   async function handleAsk(question) {
     addMessage(question, "user");
+    persistMessage(question, "user");
+
+    // Очистка истории по просьбе пользователя
+    if (isClearCommand(question)) {
+      clearHistory();
+      forgetUserName();
+      const bye = "Готово — историю и имя очистил. Начинаем с чистого листа. 🙂";
+      addMessage(bye, "bot");
+      // после очистки заново сохраняем только это подтверждение
+      persistMessage(question, "user");
+      persistMessage(bye, "bot");
+      return;
+    }
+
     const typing = addTyping();
     try {
       // AkylAi отвечает ТОЛЬКО из базы знаний проекта (без внешнего ИИ).
       await new Promise(function (r) { setTimeout(r, 250); });
-      let answer = detailRequest(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
+      let answer = nameMemory(question) || detailRequest(question) || lookupLaw(question) || smallTalk(question) || offlineAnswer(question);
       typing.remove();
       addMessage(answer, "bot");
+      persistMessage(answer, "bot");
     } catch (e) {
       typing.remove();
       addMessage("Произошла ошибка: " + e.message, "bot");
@@ -321,4 +413,5 @@
   renderForecasts();
   renderSources();
   refreshKeyStatus();
+  restoreHistory(); // вернуть прошлый диалог (память между визитами)
 })();

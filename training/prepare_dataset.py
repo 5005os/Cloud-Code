@@ -42,7 +42,8 @@ def load_jsonl(name):
 # 1) Готовые instruction/output JSONL
 for name in ["qa.jsonl", "law_qa.jsonl", "traffic_rules.jsonl",
              "traffic_rules_ky.jsonl", "pdd_exam.jsonl", "pdd_top50.jsonl",
-             "criminal_code_kr.jsonl", "tourism.jsonl"]:
+             "criminal_code_kr.jsonl", "tourism.jsonl", "culture.jsonl",
+             "kyrgyzstan_facts.jsonl", "bishkek_places.jsonl"]:
     for r in load_jsonl(name):
         add(r.get("instruction"), r.get("output"), r.get("input", ""))
 

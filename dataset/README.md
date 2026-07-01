@@ -24,6 +24,9 @@
 | `pdd_exam.jsonl` | Экзаменационные билеты ПДД с правильными ответами | JSONL |
 | `pdd_top50.jsonl` | Топ-50 вопросов-ответов по ПДД КР | JSONL |
 | `tourism.jsonl` | Туризм: Иссык-Куль, Сон-Куль, места, еда, виза | JSONL |
+| `culture.jsonl` | Культура и традиции: юрта, Манас, комуз, той, праздники | JSONL |
+| `kyrgyzstan_facts.jsonl` | Свежие факты: население, ВВП, регионы (stat.gov.kg, 24.kg) | JSONL |
+| `bishkek_places.jsonl` | ТЦ, рынки и улицы Бишкека (адреса) | JSONL |
 | `grammar.md` | Грамматика кыргызского (падежи, гармония, глаголы) | Markdown |
 | `phrasebook` (в `data/knowledge.js`) | Разговорник для сайта | JS |
 
